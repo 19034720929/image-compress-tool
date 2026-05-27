@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>免费在线图片压缩</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        header h1 { font-size: 36px; margin-bottom: 10px; }
+        header p { font-size: 16px; opacity: 0.9; }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+        .upload-area.dragover {
+            background: #eef0ff;
+            border-color: #764ba2;
+        }
+        .upload-icon { font-size: 48px; margin-bottom: 15px; }
+        .upload-text { font-size: 18px; color: #667eea; font-weight: 600; }
+        .upload-hint { font-size: 14px; color: #999; margin-top: 8px; }
+        #fileInput { display: none; }
+        .preview-area { display: none; margin-top: 30px; }
+        .compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .compare-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .compare-box img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+        }
+        .compare-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .file-size {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .file-size span {
+            font-size: 14px;
+            color: #999;
+            font-weight: normal;
+        }
+        .slider-area {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        .slider-area label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+        }
+        .quality-value {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .download-area { text-align: center; margin-top: 20px; }
+        footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 40px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 26px; }
+            .compare { grid-template-columns: 1fr; }
+            .card { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗜️ 免费在线图片压缩</h1>
+            <p>无需上传服务器，本地压缩，保护隐私</p>
+        </header>
+
+        <div class="card">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">点击或拖拽上传图片</div>
+                <div class="upload-hint">支持 JPG、PNG、WebP 格式</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+
+            <div class="preview-area" id="previewArea">
+                <div class="compare">
+                    <div class="compare-box">
+                        <h4>📷 原图</h4>
+                        <img id="originalImg" src="" alt="原图">
+                        <div class="file-size" id="originalSize">0 KB</div>
+                    </div>
+                    <div class="compare-box">
+                        <h4>✨ 压缩后</h4>
+                        <img id="compressedImg" src="" alt="压缩后">
+                        <div class="file-size" id="compressedSize">0 KB</div>
+                    </div>
+                </div>
+
+                <div class="slider-area">
+                    <label>压缩质量（数字越小，文件越小）</label>
+                    <input type="range" id="qualitySlider" min="10" max="100" value="80">
+                    <div class="quality-value" id="qualityValue">80%</div>
+                </div>
+
+                <div class="download-area">
+                    <a class="btn" id="downloadBtn" download="compressed-image.jpg">⬇️ 下载压缩后的图片</a>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🔒 本工具完全免费，所有处理在浏览器本地完成</p>
+            <p>图片不会上传到任何服务器，请放心使用</p>
+        </footer>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const originalImg = document.getElementById('originalImg');
+        const compressedImg = document.getElementById('compressedImg');
+        const originalSize = document.getElementById('originalSize');
+        const compressedSize = document.getElementById('compressedSize');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let originalFile = null;
+        let originalImage = new Image();
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) handleFile(files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function handleFile(file) {
+            if (!file.type.match('image.*')) {
+                alert('请上传图片文件');
+                return;
+            }
+            originalFile = file;
+            originalSize.textContent = formatSize(file.size);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImage.src = e.target.result;
+                originalImg.src = e.target.result;
+                previewArea.style.display = 'block';
+                compressImage();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function compressImage() {
+            const quality = qualitySlider.value / 100;
+            qualityValue.textContent = qualitySlider.value + '%';
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = originalImage.width;
+            canvas.height = originalImage.height;
+            ctx.drawImage(originalImage, 0, 0);
+
+            const mimeType = originalFile.type === 'image/png' ? 'image/jpeg' : originalFile.type;
+            const compressedDataUrl = canvas.toDataURL(mimeType, quality);
+
+            compressedImg.src = compressedDataUrl;
+
+            // 计算压缩后大小
+            const base64Length = compressedDataUrl.split(',')[1].length;
+            const compressedBytes = Math.ceil(base64Length * 0.75);
+            compressedSize.textContent = formatSize(compressedBytes);
+
+            downloadBtn.href = compressedDataUrl;
+            const ext = mimeType === 'image/png' ? 'png' : 'jpg';
+            downloadBtn.download = 'compressed-' + Date.now() + '.' + ext;
+        }
+
+        qualitySlider.addEventListener('input', compressImage);
+    </script>
+</body>
+</html>
